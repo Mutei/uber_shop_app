@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:uber_shop_app/auth/auth_methods.dart';
+import 'package:uber_shop_app/resources/auth_methods.dart';
 import 'package:uber_shop_app/constants/styles.dart';
 import 'package:uber_shop_app/extension/sized_box_extension.dart';
 import 'package:uber_shop_app/localization/language_constants.dart';

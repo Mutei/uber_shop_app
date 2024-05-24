@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:uber_shop_app/auth/auth_methods.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:uber_shop_app/resources/auth_methods.dart';
 import 'package:uber_shop_app/constants/styles.dart';
 import 'package:uber_shop_app/extension/sized_box_extension.dart';
 import 'package:uber_shop_app/localization/language_constants.dart';
@@ -8,6 +10,7 @@ import 'package:uber_shop_app/screens/login_screen.dart';
 
 import '../constants/colors.dart';
 import '../textFormField/text_form_style.dart';
+import '../utils/image_picker_file.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -27,12 +30,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late String email;
   late String fullName;
   late String password;
+  Uint8List? _image;
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _fullNameController.dispose();
     super.dispose();
+  }
+
+  void selectImage() async {
+    Uint8List im = await pickImage(ImageSource.gallery);
+    setState(() {
+      _image = im;
+    });
   }
 
   @override
@@ -55,33 +66,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     style: kGoogleFontsStyle,
                   ),
                   10.kH,
-                  TextFormFieldStyle(
-                    onChanged: (value) {
-                      email = value!;
-                    },
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return getTranslated(
-                          context,
-                          'Enter your Email',
-                        );
-                      }
-                      return null;
-                    },
-                    context: context,
-                    hint: getTranslated(
-                      context,
-                      "Enter your Email",
-                    ),
-                    icon: Icon(
-                      Icons.email,
-                      color: kPrimaryColor,
-                    ),
-                    control: _emailController,
-                    isObsecured: false,
-                    validate: validateEmail,
-                    textInputType: TextInputType.emailAddress,
-                    showVisibilityToggle: false,
+                  Stack(
+                    children: [
+                      _image != null
+                          ? CircleAvatar(
+                              radius: 64,
+                              backgroundImage: MemoryImage(_image!),
+                            )
+                          : const CircleAvatar(
+                              radius: 64,
+                              backgroundImage: AssetImage('images/default.jpg'),
+                            ),
+                      Positioned(
+                        bottom: -10,
+                        left: 80,
+                        child: IconButton(
+                          onPressed: selectImage,
+                          icon: const Icon(Icons.add_a_photo),
+                        ),
+                      ),
+                    ],
                   ),
                   TextFormFieldStyle(
                     onChanged: (value) {
@@ -106,6 +110,34 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       color: kPrimaryColor,
                     ),
                     control: _fullNameController,
+                    isObsecured: false,
+                    validate: validateEmail,
+                    textInputType: TextInputType.emailAddress,
+                    showVisibilityToggle: false,
+                  ),
+                  TextFormFieldStyle(
+                    onChanged: (value) {
+                      email = value!;
+                    },
+                    validator: (value) {
+                      if (value!.isEmpty) {
+                        return getTranslated(
+                          context,
+                          'Enter your Email',
+                        );
+                      }
+                      return null;
+                    },
+                    context: context,
+                    hint: getTranslated(
+                      context,
+                      "Enter your Email",
+                    ),
+                    icon: Icon(
+                      Icons.email,
+                      color: kPrimaryColor,
+                    ),
+                    control: _emailController,
                     isObsecured: false,
                     validate: validateEmail,
                     textInputType: TextInputType.emailAddress,
@@ -149,7 +181,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             email: _emailController.text,
                             password: _passwordController.text,
                             userName: _fullNameController.text,
+                            profilePicture: _image!,
                           );
+                          print("Users details is: ...>");
+                          authMethods.getUserDetails();
                         } else {
                           print(
                             getTranslated(
